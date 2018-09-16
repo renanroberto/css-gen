@@ -11,7 +11,7 @@ main = putStrLn "CSS Generator"
 {-- Mocks --}
 
 html :: String
-html = "<body><div><span>test 1</span><span>test 2</span><div>A</div><p>B</p><div>C</div></div></body>"
+html = "<body><div class=\"content\"><span class=\"test-1\">test 1 <div><p class=\"paragraph\">Lorem ipsum</p></div></span><span class=\"test-2\">test 2</span><div class=\"divA\">A</div><p>B</p><div>C</div></div></body>"
 
 regex :: String
 regex = "(<[^/].*?>)|(</.*?>)"
@@ -79,9 +79,34 @@ levels group =
 tagsWithLevel :: [(String, Int)]
 tagsWithLevel = 
   tags `zip` (levels tags)
---    |> map (\t -> ((tagClass . fst) t, fst t, snd t))
---    |> filter (\(b, _, _) -> b == Just True)
---    |> map (\(_, a, b) -> (a, b))
+
+
+getClass :: String -> String
+getClass tag = 
+  let match = (tag =~ "(?<=class=(?:\"|')).*?(?=(?:\"|'))") in
+      if match == [[]] || match == []
+         then ""
+         else (head . head) match
+
+classesWithLevel :: [(String, Int)]
+classesWithLevel =
+  tagsWithLevel
+    |> map (\(t, l) -> (getClass t, l))
+    |> filter (\(c, l) -> c /= "")
+
+
+
+{-- EXPERIMENTS --
+
+order :: Ord a => [a] -> [a]
+order [] = []
+order [x] = [x]
+order (x:xs) = order lower ++ [x] ++ order higher
+  where
+    lower = [l | l <- xs, l <= x]
+    higher = [h | h <- xs, h > x]
+
+--}
 
 {--
 All tags:    (<.*?>)
