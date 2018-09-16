@@ -87,4 +87,5 @@ tagsWithLevel =
 All tags:    (<.*?>)
 Open tags:   (<[^/].*?>)
 Close tags:  (<\/.*?>)
+Classes:     (?<=class=(?:"|')).*?(?=(?:"|'))
 --}
