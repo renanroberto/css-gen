@@ -95,6 +95,17 @@ classesWithLevel =
     |> map (\(t, l) -> (getClass t, l))
     |> filter (\(c, l) -> c /= "")
 
+classesWithLevelPlan :: [(String, Int)]
+classesWithLevelPlan =
+  classesWithLevel
+    |> map (\(c, l) -> (c, (getInt . index) l))
+    where index = getIndex $ map snd classesWithLevel
+
+
+-- Hack
+getInt :: Maybe Int -> Int
+getInt Nothing = 0
+getInt (Just n) = n
 
 getIndex :: Ord a => [a] -> (a -> Maybe Int)
 getIndex list =
