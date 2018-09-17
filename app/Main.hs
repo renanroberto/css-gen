@@ -1,5 +1,6 @@
 module Main where
 
+import Data.List
 import Text.Regex.PCRE ((=~))
 
 (|>) :: a -> (a -> b) -> b
@@ -35,22 +36,22 @@ matchGroup index match =
 
 {-- Dependent on mock --}
 
-group :: Int -> Maybe Group
-group i = matchGroup i $ match html regex
+getGroup :: Int -> Maybe Group
+getGroup i = matchGroup i $ match html regex
 
 --}
 
 getTags :: Maybe Group -> Group
 getTags Nothing = []
-getTags (Just group) = group
+getTags (Just g) = g
 
 tags :: Group
-tags = getTags $ group 0
+tags = getTags $ getGroup 0
 
 
 tagClass :: String -> Maybe Bool
 tagClass tag =
-  elem tag <$> group 1
+  elem tag <$> getGroup 1
 
 tagValue :: Maybe Bool -> Int
 tagValue bool
@@ -69,8 +70,8 @@ sumLevel lvls i = (lvls !! (i-1)) + (sumLevel lvls (i-1))
 
 
 levels :: Group -> [Int]
-levels group =
-  group
+levels getGroup =
+  getGroup
     |> map tagClass
     |> map tagValue
     |> sumLevels
@@ -95,18 +96,15 @@ classesWithLevel =
     |> filter (\(c, l) -> c /= "")
 
 
+getIndex :: Ord a => [a] -> (a -> Maybe Int)
+getIndex list =
+  let 
+    planList = (map head . group . sort) list
+    indexes = [1..length planList]
+  in
+    (\n ->
+      (indexes !!) <$> (findIndex ((==) n) planList))
 
-{-- EXPERIMENTS --
-
-order :: Ord a => [a] -> [a]
-order [] = []
-order [x] = [x]
-order (x:xs) = order lower ++ [x] ++ order higher
-  where
-    lower = [l | l <- xs, l <= x]
-    higher = [h | h <- xs, h > x]
-
---}
 
 {--
 All tags:    (<.*?>)
