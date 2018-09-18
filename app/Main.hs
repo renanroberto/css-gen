@@ -117,6 +117,22 @@ getIndex list =
       (indexes !!) <$> (findIndex ((==) n) planList))
 
 
+compileTag :: (String, Int) -> Int -> String
+compileTag tag nextlvl
+  | lvl < nextlvl   = space ++ "." ++ name ++ " {\n\n"
+  | lvl == nextlvl  = space ++ "." ++ name ++ " {\n\n" ++ space ++ "}\n\n"
+  | otherwise       = space ++ "." ++ name ++ " {\n\n" ++ space ++ "}\n\n" ++ prevSpace ++ "}\n\n"
+  where name = fst tag
+        lvl = snd tag
+        space = take ((lvl - 1) * 2) $ repeat ' '
+        prevSpace = take (((lvl - 1) * 2) - 2) $ repeat ' '
+
+compile :: [(String, Int)] -> String
+compile [tag] = compileTag tag (snd tag - 1)
+compile (tag:tags) =
+  compileTag tag nextLvl ++ compile tags
+    where nextLvl = (snd . head) tags
+
 {--
 All tags:    (<.*?>)
 Open tags:   (<[^/].*?>)
