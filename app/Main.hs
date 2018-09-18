@@ -102,7 +102,7 @@ classesWithLevelPlan =
     where index = getIndex $ map snd classesWithLevel
 
 
--- Hack
+-- Hack? --
 getInt :: Maybe Int -> Int
 getInt Nothing = 0
 getInt (Just n) = n
