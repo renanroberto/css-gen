@@ -31,8 +31,8 @@ regexClasses :: String
 regexClasses = "class(?:Name)?=(?:\"|').*?(?:\"|')"
 
 
-getTags :: String -> String -> [Group]
-getTags = (=~)
+getTags :: String -> [Group]
+getTags = (=~ regexTags)
 
 getGroup :: Int -> [Group] -> Maybe Group
 getGroup i groups =
@@ -44,10 +44,14 @@ getGroup i groups =
      else Nothing
 
 
-tagIsOpen :: [Group] -> String -> Int
+tagIsOpen :: [Group] -> String -> Bool
 tagIsOpen tags tag
-  | (elem tag <$> getGroup 1 tags) == Just True = 1
-  | otherwise = -1
+  | (elem tag <$> getGroup 1 tags) == Just True = True
+  | otherwise = False
+
+boolToWeight :: Bool -> Int
+boolToWeight bool =
+  if bool then 1 else -1
 
 sumWeight :: [Int] -> [Int]
 sumWeight [x] = [x]
@@ -60,6 +64,7 @@ setWeight :: [Group] -> Maybe [(String, Int)]
 setWeight groups =
   tags
     |> (fmap . map) (tagIsOpen groups)
+    |> (fmap . map) boolToWeight
     |> fmap sumWeight
     |> (<*>) (fmap zip tags)
     where tags = getGroup 0 groups
