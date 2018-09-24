@@ -34,6 +34,9 @@ regexClasses = "class(?:Name)?=(?:\"|').*?(?:\"|')"
 getTags :: String -> [Group]
 getTags = (=~ regexTags)
 
+getClass :: String -> String
+getClass = (=~ regexClasses)
+
 getGroup :: Int -> [Group] -> Maybe Group
 getGroup i groups =
   if 0 <= i && i < (length . head) groups
@@ -69,4 +72,13 @@ setWeight groups =
     |> (<*>) (fmap zip tags)
     where tags = getGroup 0 groups
 
--- To continue: At now we have all tags with weights
+getClassesWithWeight :: [(String, Int)] -> [(String, Int)]
+getClassesWithWeight tws =
+  tws
+    |> map fst
+    |> map getClass
+    |> (`zip` weights)
+    where weights = map snd tws
+
+-- To continue: At now we have all classes with weights
+-- TODO clear classes
