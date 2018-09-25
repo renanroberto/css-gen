@@ -30,12 +30,20 @@ regexTags = "(<[^/].*?[^/]>)|(</.*?[^/]>)"
 regexClasses :: String
 regexClasses = "class(?:Name)?=(?:\"|').*?(?:\"|')"
 
+-- Match text between double quot
+regexText :: String
+regexText = "(?<=\").*?(?=\")"
+
 
 getTags :: String -> [Group]
 getTags = (=~ regexTags)
 
 getClass :: String -> String
 getClass = (=~ regexClasses)
+
+clearClass :: String -> String
+clearClass = (=~ regexText)
+
 
 getGroup :: Int -> [Group] -> Maybe Group
 getGroup i groups =
@@ -76,9 +84,9 @@ getClassesWithWeight :: [(String, Int)] -> [(String, Int)]
 getClassesWithWeight tws =
   tws
     |> map fst
-    |> map getClass
+    |> map (clearClass . getClass)
     |> (`zip` weights)
+    |> filter (\t -> fst t /= "")
     where weights = map snd tws
 
--- To continue: At now we have all classes with weights
--- TODO clear classes
+-- To continue: At now we have all classes with weights cleared and filtered
