@@ -90,3 +90,4 @@ getClassesWithWeight tws =
     where weights = map snd tws
 
 -- To continue: At now we have all classes with weights cleared and filtered
+-- fmap getClassesWithWeight $ (setWeight . getTags) html
