@@ -19,7 +19,7 @@ a |> f = f a
 
 -- Mock
 html :: String
-html = "<div class=\"main content\"><h1>Title</h1><p class=\"text\">Lorem Ipsum dolor sit amet</p></div>"
+html = "<body><div class=\"content\"><span class=\"test-1\">test 1 <div><p class=\"paragraph red\">Lorem ipsum</p></div></span><span class=\"test-2\">test 2</span><div class=\"divA\">A</div><p>B</p><div>C</div></div></body>"
 
 
 -- Match tags. Group 1 is open tags and group 2 is closed tags
@@ -79,6 +79,9 @@ setWeight groups =
     |> fmap sumWeight
     |> (<*>) (fmap zip tags)
     where tags = getGroup 0 groups
+
+planify :: [Int] -> [Int]
+planify xs
 
 getClassesWithWeight :: [(String, Int)] -> [(String, Int)]
 getClassesWithWeight tws =
