@@ -111,5 +111,5 @@ compileHtml (tag:tags) =
     where next = (snd . head) tags
 
 
--- To continue: At now we have all classes with weights cleared and filtered
--- fmap getClassesWithWeight $ (setWeight . getTags) html
+-- TODO: Tests and join the functions
+-- fmap compileHtml $ fmap getClassesWithWeight $ (setWeight . getTags) html
