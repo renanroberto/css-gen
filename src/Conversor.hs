@@ -19,7 +19,7 @@ a |> f = f a
 
 -- Mock
 html :: String
-html = "<div class=\"content\"><h1>Title</h1><p class=\"text\">Lorem Ipsum dolor sit amet</p></div>"
+html = "<div class=\"main content\"><h1>Title</h1><p class=\"text\">Lorem Ipsum dolor sit amet</p></div>"
 
 
 -- Match tags. Group 1 is open tags and group 2 is closed tags
@@ -88,6 +88,28 @@ getClassesWithWeight tws =
     |> (`zip` weights)
     |> filter (\t -> fst t /= "")
     where weights = map snd tws
+
+
+toClass :: String -> String
+toClass = (unwords . map ('.' :) . words)
+
+compileTag :: (String, Int) -> Int -> String
+compileTag tag next =
+  space ++ toClass name ++ bracket
+    where name = fst tag
+          lvl = snd tag
+          space = replicate (2*lvl - 2) ' '
+          bracket
+            | lvl < next  = "{\n\n"
+            | lvl == next = "{\n\n" ++ space ++ "\n\n}"
+            | lvl > next  = "{\n\n" ++ space ++ "\n\n}" ++ (tail . tail) space
+
+compileHtml :: [(String, Int)] -> String
+compileHtml [tag] = compileTag tag (snd tag - 1)
+compileHtml (tag:tags) =
+  compileTag tag next ++ compileHtml tags
+    where next = (snd . head) tags
+
 
 -- To continue: At now we have all classes with weights cleared and filtered
 -- fmap getClassesWithWeight $ (setWeight . getTags) html
