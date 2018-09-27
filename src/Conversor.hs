@@ -80,15 +80,16 @@ setWeight groups =
     |> (<*>) (fmap zip tags)
     where tags = getGroup 0 groups
 
+-- wrong
 planify :: [Int] -> [Int]
-planify xs
+planify xs = [1..length xs]
 
 getClassesWithWeight :: [(String, Int)] -> [(String, Int)]
 getClassesWithWeight tws =
   tws
     |> map fst
     |> map (clearClass . getClass)
-    |> (`zip` weights)
+    |> (`zip` (planify weights))
     |> filter (\t -> fst t /= "")
     where weights = map snd tws
 
