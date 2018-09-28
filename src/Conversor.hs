@@ -6,7 +6,7 @@ module Lib
 
 module Conversor where
 
-
+import Data.List
 import Text.Regex.PCRE ((=~))
 
 
@@ -15,6 +15,18 @@ type Group = [String]
 
 (|>) :: a -> (a -> b) -> b
 a |> f = f a
+
+-- fmap compileHtml $ fmap (normalizeClassesWithWeight . getClassesWithWeight) $ (setWeight . getTags) html
+convert :: String -> String
+convert html =
+  html
+    |> getTags
+    |> setWeight
+    |> fmap (normalizeClassesWithWeight . getClassesWithWeight)
+    |> fmap compileHtml
+    |> (\css -> case css of
+                  Nothing -> "Error: Can't convert this HTML File"
+                  Just str -> str)
 
 
 -- Mock
@@ -80,18 +92,28 @@ setWeight groups =
     |> (<*>) (fmap zip tags)
     where tags = getGroup 0 groups
 
--- wrong
-planify :: [Int] -> [Int]
-planify xs = [1..length xs]
+normalizer :: Ord a => [a] -> (a -> Int)
+normalizer xs =
+  let
+    unique = (map head . group . sort) xs
+    normalized = [1..length unique]
+  in
+    (\x -> case (normalized !!) <$> (findIndex (== x) unique) of
+             Nothing -> 0
+             Just n  -> n)
+
 
 getClassesWithWeight :: [(String, Int)] -> [(String, Int)]
 getClassesWithWeight tws =
   tws
-    |> map fst
-    |> map (clearClass . getClass)
-    |> (`zip` (planify weights))
+    |> map (\(t, w) -> ((clearClass . getClass) t, w))
     |> filter (\t -> fst t /= "")
-    where weights = map snd tws
+
+normalizeClassesWithWeight :: [(String, Int)] -> [(String, Int)]
+normalizeClassesWithWeight tws =
+  tws
+    |> map (\(t, w) -> (t, normalize w))
+    where normalize = normalizer (map snd tws)
 
 
 toClass :: String -> String
@@ -115,5 +137,5 @@ compileHtml (tag:tags) =
     where next = (snd . head) tags
 
 
--- TODO: Tests and join the functions
--- fmap compileHtml $ fmap getClassesWithWeight $ (setWeight . getTags) html
+-- TODO: Fix it
+-- (putStrLn . compile) html
