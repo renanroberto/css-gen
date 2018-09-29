@@ -1,9 +1,3 @@
-{--
-module Lib
-    ( someFunc
-    ) where
---}
-
 module Conversor ( convert ) where
 
 import Data.List
