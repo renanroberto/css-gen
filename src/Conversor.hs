@@ -4,7 +4,7 @@ module Lib
     ) where
 --}
 
-module Conversor where
+module Conversor ( convert ) where
 
 import Data.List
 import Text.Regex.PCRE ((=~))
@@ -16,7 +16,7 @@ type Group = [String]
 (|>) :: a -> (a -> b) -> b
 a |> f = f a
 
--- fmap compileHtml $ fmap (normalizeClassesWithWeight . getClassesWithWeight) $ (setWeight . getTags) html
+
 convert :: String -> String
 convert html =
   html
@@ -27,13 +27,6 @@ convert html =
     |> (\css -> case css of
                   Nothing -> "Error: Can't convert this HTML File"
                   Just str -> str)
-
-
--- Mock
-{--}
-html :: String
-html = "<body><div class=\"content\"><span class=\"test-1\">test 1 <div><p class=\"paragraph red\">Lorem ipsum</p></div></span><span class=\"test-2\">test 2</span><div class=\"divA\">A</div><p>B</p><div>C</div></div></body>"
---}
 
 
 -- Match tags. Group 1 is open tags and group 2 is closed tags
@@ -68,11 +61,11 @@ getGroup i groups =
             |> Just
      else Nothing
 
-
 tagIsOpen :: [Group] -> String -> Bool
 tagIsOpen tags tag
   | (elem tag <$> getGroup 1 tags) == Just True = True
   | otherwise = False
+
 
 boolToWeight :: Bool -> Int
 boolToWeight bool =
@@ -84,7 +77,6 @@ sumWeight ws = (sumWeight base) ++ [(sum base) + w]
   where base = init ws
         w = last ws
 
-
 setWeight :: [Group] -> Maybe [(String, Int)]
 setWeight groups =
   tags
@@ -93,6 +85,13 @@ setWeight groups =
     |> fmap sumWeight
     |> (<*>) (fmap zip tags)
     where tags = getGroup 0 groups
+
+getClassesWithWeight :: [(String, Int)] -> [(String, Int)]
+getClassesWithWeight tws =
+  tws
+    |> map (\(t, w) -> ((clearClass . getClass) t, w))
+    |> filter (\t -> fst t /= "")
+
 
 normalizer :: Ord a => [a] -> (a -> Int)
 normalizer xs =
@@ -103,13 +102,6 @@ normalizer xs =
     (\x -> case (normalized !!) <$> (findIndex (== x) unique) of
              Nothing -> 0
              Just n  -> n)
-
-
-getClassesWithWeight :: [(String, Int)] -> [(String, Int)]
-getClassesWithWeight tws =
-  tws
-    |> map (\(t, w) -> ((clearClass . getClass) t, w))
-    |> filter (\t -> fst t /= "")
 
 normalizeClassesWithWeight :: [(String, Int)] -> [(String, Int)]
 normalizeClassesWithWeight tws =
