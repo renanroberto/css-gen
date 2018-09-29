@@ -113,19 +113,24 @@ normalizeClassesWithWeight tws =
 toClass :: String -> String
 toClass = (unwords . map ('.' :) . words)
 
+indent :: Int -> String
+indent n = replicate (2*n - 2) ' '
+
+closeClass :: Int -> Int -> String
+closeClass 0 _ = ""
+closeClass close lvl =
+  indent lvl ++ "}\n\n" ++ closeClass (close - 1) (lvl - 1)
+
 compileTag :: (String, Int) -> Int -> String
 compileTag tag next =
-  space ++ toClass name ++ bracket
-    where name = fst tag
+  indent lvl ++ name ++ " {\n\n" ++ (closeClass untilClose lvl)
+    where name = (toClass . fst) tag
           lvl = snd tag
-          space = replicate (2*lvl - 2) ' '
-          bracket
-            | lvl < next  = " {\n\n"
-            | lvl == next = " {\n\n" ++ space ++ "}\n\n"
-            | lvl > next  = " {\n\n" ++ space ++ "}\n\n" ++ (tail . tail) space ++ "}\n\n"
+          untilClose = max 0 (lvl - next + 1)
+
 
 compileHtml :: [(String, Int)] -> String
-compileHtml [tag] = compileTag tag (snd tag - 1)
+compileHtml [tag] = compileTag tag 1
 compileHtml (tag:tags) =
   compileTag tag next ++ compileHtml tags
     where next = (snd . head) tags
