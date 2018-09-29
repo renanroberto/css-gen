@@ -30,8 +30,10 @@ convert html =
 
 
 -- Mock
+{--}
 html :: String
 html = "<body><div class=\"content\"><span class=\"test-1\">test 1 <div><p class=\"paragraph red\">Lorem ipsum</p></div></span><span class=\"test-2\">test 2</span><div class=\"divA\">A</div><p>B</p><div>C</div></div></body>"
+--}
 
 
 -- Match tags. Group 1 is open tags and group 2 is closed tags
@@ -126,9 +128,9 @@ compileTag tag next =
           lvl = snd tag
           space = replicate (2*lvl - 2) ' '
           bracket
-            | lvl < next  = "{\n\n"
-            | lvl == next = "{\n\n" ++ space ++ "\n\n}"
-            | lvl > next  = "{\n\n" ++ space ++ "\n\n}" ++ (tail . tail) space
+            | lvl < next  = " {\n\n"
+            | lvl == next = " {\n\n" ++ space ++ "}\n\n"
+            | lvl > next  = " {\n\n" ++ space ++ "}\n\n" ++ (tail . tail) space ++ "}\n\n"
 
 compileHtml :: [(String, Int)] -> String
 compileHtml [tag] = compileTag tag (snd tag - 1)
@@ -136,6 +138,3 @@ compileHtml (tag:tags) =
   compileTag tag next ++ compileHtml tags
     where next = (snd . head) tags
 
-
--- TODO: Fix it
--- (putStrLn . compile) html
