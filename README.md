@@ -1,3 +1,8 @@
 # css-gen
 
-Generate CSS structure from HTML
+Generate SCSS structure from HTML
+
+## TODO
+
+- [] Eliminate repeated classes
+- [] Include IDs
