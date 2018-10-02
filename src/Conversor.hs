@@ -85,6 +85,7 @@ getClassesWithWeight tws =
   tws
     |> map (\(t, w) -> ((clearClass . getClass) t, w))
     |> filter (\t -> fst t /= "")
+    |> (map head . group)
 
 
 normalizer :: Ord a => [a] -> (a -> Int)
